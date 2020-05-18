@@ -6,6 +6,7 @@ import { MandarineStorageHandler } from "./mandarine-native/sessions/mandarineDe
 import { MandarineSecurity } from "../security-core/mandarine-security.ns.ts";
 import { MandarineMvc } from "../mvc-framework/mandarine-mvc.ns.ts";
 import { MandarineORM } from "../orm-core/mandarine-orm.ns.ts";
+import { EntitiesRegistry } from "../orm-core/entities-registry/entities-registry.ts";
 
 export namespace Mandarine {
 
@@ -36,6 +37,7 @@ export namespace Mandarine {
         export interface MandarineGlobalInterface {
             mandarineComponentsRegistry: MandarineCore.IComponentsRegistry;
             mandarineSessionContainer: MandarineSecurity.Sessions.SessionContainer;
+            mandarineEntitiesContainer: MandarineORM.Entity.EntitiesRegistry;
             mandarineProperties: Properties;
             mandarineMiddleware: Array<MiddlewareComponent>;
         };
@@ -48,6 +50,7 @@ export namespace Mandarine {
                 (window as any).mandarineGlobal = <MandarineGlobalInterface> {
                     mandarineComponentsRegistry: undefined,
                     mandarineSessionContainer: undefined,
+                    mandarineEntitiesContainer: undefined,
                     mandarineProperties: undefined,
                     mandarineMiddleware: undefined
                 }
@@ -73,6 +76,19 @@ export namespace Mandarine {
             }
     
             return mandarineGlobal.mandarineComponentsRegistry;
+        };
+
+        /**
+        * Get the Components' registry from Mandarine's global environment
+        */
+       export function getEntitiesRegistry(): MandarineORM.Entity.EntitiesRegistry { 
+            let mandarineGlobal: MandarineGlobalInterface = getMandarineGlobal();
+
+            if(mandarineGlobal.mandarineEntitiesContainer == (null || undefined)) {
+                mandarineGlobal.mandarineEntitiesContainer = new EntitiesRegistry();
+            }
+
+            return mandarineGlobal.mandarineEntitiesContainer;
         };
 
         /**
@@ -140,6 +156,7 @@ export namespace Mandarine {
         export interface IApplicationContext {
             componentsRegistry: Mandarine.MandarineCore.IComponentsRegistry;
             getComponentsRegistry(): MandarineCore.IComponentsRegistry;
+            getEntitiesRegistry(): ORM.Entity.EntitiesRegistry;
             initializeMetadata(): void;
             changeSessionContainer(newSessionContainer: MandarineSecurity.Sessions.SessionContainer): void;
             getInstance?: () => ApplicationContext.IApplicationContext;

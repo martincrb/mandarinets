@@ -1,6 +1,5 @@
 import { Types } from "./sql/types.ts";
-import { TableCreationClass } from "./query-builder/tables.table-creation-context.ts";
-
+import { Column } from "https://deno.land/x/postgres/connection.ts";
 export namespace MandarineORM {
 
     export namespace Dialect {
@@ -8,31 +7,52 @@ export namespace MandarineORM {
         export enum Dialects {
             POSTGRESQL = "postgres"
         };
-
-        export interface Type {
-            type: Types;
-            value: string;
-        }
-
-        export interface Dialect {
-            types: Map<Types, Type>;
-            registerType(type: Types, value: string): void;
-            getType(type: Types): Type;
-            createSchemaString(name: string, ifNotExist?: boolean, authorization?: string): string;
-            defaultSchema(): string;
-            maximumLengthInVarchar(): number;
-        }
     }
 
-    export namespace Tables {
-        
-        export interface FinalType {
-            type: Types;
-            finalValue: string;
-            options?: any;
+    export namespace Entity {
+
+        export namespace Decorators {
+            export interface Table {
+                name: string;
+                schema: string;
+            }
+
+            export interface Column {
+                name?: string;
+                fieldName?: string;
+                type?: Types;
+                unique?: boolean;
+                nullable?: boolean;
+                length?: number;
+                precision?: number;
+                scale?: number;
+                incrementStrategy?: boolean;
+                options?: any;
+            }
+
+            export interface GeneratedValue {
+                strategy: "SEQUENCE" | "MANUAL",
+                manualHandler?: Function;
+            }
         }
 
-        export const TableCreationContext = TableCreationClass;
+        export interface EntitiesRegistry {
+            register(schemaName: string, tableName: string, instance: any): void;
+            getColumnsFromEntity(entityInstance: any): Array<Entity.Decorators.Column>;
+            getAllEntities(): Array<Entity.Table>;
+        }
+
+        export interface Column extends Entity.Decorators.Column {
+        }
+
+        export interface Table {
+            tableName: string;
+            schema: string;
+            columns: Column[];
+            uniqueConstraints: Column[];
+            primaryKey: string;
+            instance: any;
+        }
     }
 
     export namespace Connector {
@@ -53,5 +73,16 @@ export namespace MandarineORM {
             database: string;
             port: number;
         }
+    }
+
+    export namespace Defaults {
+        export const ColumnDecoratorDefault: Entity.Decorators.Column = {
+            name: undefined,
+            unique: false,
+            nullable: true,
+            length: 255,
+            precision: 8,
+            scale: 2
+        };
     }
 }

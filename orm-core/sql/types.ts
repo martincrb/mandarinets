@@ -303,5 +303,6 @@ export enum Types {
 
   JSON = 2015,
   UUID = 2016,
-  JSONB = 2017
+  JSONB = 2017,
+  INCREMENTS = 2018
 }
