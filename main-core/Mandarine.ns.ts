@@ -5,6 +5,7 @@ import { CommonUtils } from "./utils/commonUtils.ts";
 import { MandarineStorageHandler } from "./mandarine-native/sessions/mandarineDefaultSessionStore.ts";
 import { MandarineSecurity } from "../security-core/mandarine-security.ns.ts";
 import { MandarineMvc } from "../mvc-framework/mandarine-mvc.ns.ts";
+import { MandarineORM } from "../orm-core/mandarine-orm.ns.ts";
 
 export namespace Mandarine {
 
@@ -264,4 +265,10 @@ export namespace Mandarine {
     * Inside this module, you can find everything that is related to the Security Engine, like Sessions.
     */
     export import Security = MandarineSecurity; 
+
+    /**
+    * Refers to the namespace of the Mandarine ORM module.
+    * Inside this module, you can find everything that is related to the built-in Mandarine ORM.
+    */
+    export import ORM = MandarineORM;
 }
