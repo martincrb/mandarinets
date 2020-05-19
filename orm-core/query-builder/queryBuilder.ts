@@ -1,27 +1,13 @@
 import { Mandarine } from "../../mod.ts";
-import Dex from "https://deno.land/x/dex/mod.ts";
 
-export class QueryBuilder {
-    
-    private knex: any;
+export class QueryBuilder<T extends Mandarine.ORM.Dialect.Dialect> {
+    private dialectClass: T;
 
-    public options: {
-        currentSchema: string
-    } = {
-        currentSchema: undefined
-    };
-
-    constructor(dialect: Mandarine.ORM.Dialect.Dialects) {
-        this.knex = Dex({client: dialect});
+    constructor(TCreator: { new (): T; }) {
+       this.dialectClass = new TCreator();
     }
 
-    public withSchema(schema: string) {
-        this.options.currentSchema = schema;
-        return this;
+    public query(): Mandarine.ORM.Dialect.Dialect {
+        return this.dialectClass;
     }
-
-    public query() {
-        return this.knex.withSchema(this.options.currentSchema);
-    }
-
 }

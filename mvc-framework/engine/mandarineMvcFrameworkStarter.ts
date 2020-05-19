@@ -9,6 +9,8 @@ import { SessionMiddleware } from "../core/middlewares/sessionMiddleware.ts";
 import { MandarineMvcFrameworkEngineMethods } from "./mandarineMvcFrameworkEngineMethods.ts";
 import { MiddlewareComponent } from "../../main-core/components/middleware-component/middlewareComponent.ts";
 import { Mandarine } from "../../main-core/Mandarine.ns.ts";
+import { getMandarineConfiguration } from "../../main-core/configuration/getMandarineConfiguration.ts";
+import { PostgreSQLConnector } from "../../orm-core/connectors/postgresqlConnector.ts";
 
 export class MandarineMvcFrameworkStarter {
 
@@ -31,6 +33,24 @@ export class MandarineMvcFrameworkStarter {
         this.initializeControllers();
         this.intializeControllersRoutes();
         this.initializeEssentials();
+        this.initializeEntities();
+    }
+
+    private initializeEntities() {
+        let configuration: Mandarine.Properties = getMandarineConfiguration();
+        if(configuration.mandarine.database != undefined) {
+
+            let dbConnector: Mandarine.ORM.Connector.Connector;
+
+            switch(configuration.mandarine.database.dialect) {
+                case Mandarine.ORM.Dialect.Dialects.POSTGRESQL:
+                    dbConnector = new PostgreSQLConnector(configuration.mandarine.database.connector);
+                break;
+            }
+
+            ApplicationContext.getInstance().getEntityManager().initialize(dbConnector, configuration.mandarine.database.dialect);
+            ApplicationContext.getInstance().getEntityManager().initializeAllEntities();
+        }
     }
 
     private resolveComponentsDependencies(): void {

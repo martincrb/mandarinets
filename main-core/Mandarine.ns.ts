@@ -21,6 +21,10 @@ export namespace Mandarine {
                 host?: string,
                 port: number,
                 responseType?: MandarineMVC.MediaTypes
+            },
+            database?: {
+                dialect: Mandarine.ORM.Dialect.Dialects,
+                connector: Mandarine.ORM.Connector.ConnectorOptions
             }
         }
     };
@@ -37,7 +41,7 @@ export namespace Mandarine {
         export interface MandarineGlobalInterface {
             mandarineComponentsRegistry: MandarineCore.IComponentsRegistry;
             mandarineSessionContainer: MandarineSecurity.Sessions.SessionContainer;
-            mandarineEntitiesContainer: MandarineORM.Entity.EntitiesRegistry;
+            mandarineEntityManager: MandarineORM.Entity.EntityManager;
             mandarineProperties: Properties;
             mandarineMiddleware: Array<MiddlewareComponent>;
         };
@@ -50,7 +54,7 @@ export namespace Mandarine {
                 (window as any).mandarineGlobal = <MandarineGlobalInterface> {
                     mandarineComponentsRegistry: undefined,
                     mandarineSessionContainer: undefined,
-                    mandarineEntitiesContainer: undefined,
+                    mandarineEntityManager: undefined,
                     mandarineProperties: undefined,
                     mandarineMiddleware: undefined
                 }
@@ -79,27 +83,28 @@ export namespace Mandarine {
         };
 
         /**
-        * Get the Components' registry from Mandarine's global environment
+        * Get the entity manager to manipulate the current DB connection
         */
-       export function getEntitiesRegistry(): MandarineORM.Entity.EntitiesRegistry { 
+        export function getEntityManager(): MandarineORM.Entity.EntityManager { 
             let mandarineGlobal: MandarineGlobalInterface = getMandarineGlobal();
 
-            if(mandarineGlobal.mandarineEntitiesContainer == (null || undefined)) {
-                mandarineGlobal.mandarineEntitiesContainer = new EntitiesRegistry();
+            if(mandarineGlobal.mandarineEntityManager == (null || undefined)) {
+                mandarineGlobal.mandarineEntityManager = new Mandarine.ORM.Entity.EntityManager();
             }
 
-            return mandarineGlobal.mandarineEntitiesContainer;
+            return mandarineGlobal.mandarineEntityManager;
         };
+
 
         /**
         * Get the properties mandarine is using.
         * If no properties are set by the user then it gets the default properties.
         */
-        export function getMandarineConfiguration(): Properties {
+       export function getMandarineConfiguration(configuration?: Properties): Properties {
             let mandarineGlobal: MandarineGlobalInterface = getMandarineGlobal();
 
             if(mandarineGlobal.mandarineProperties == (null || undefined)) {
-                mandarineGlobal.mandarineProperties = Defaults.MandarineDefaultConfiguration;
+                mandarineGlobal.mandarineProperties = (configuration == (null || undefined)) ? Defaults.MandarineDefaultConfiguration : configuration;
             }
     
             return mandarineGlobal.mandarineProperties;
@@ -156,7 +161,7 @@ export namespace Mandarine {
         export interface IApplicationContext {
             componentsRegistry: Mandarine.MandarineCore.IComponentsRegistry;
             getComponentsRegistry(): MandarineCore.IComponentsRegistry;
-            getEntitiesRegistry(): ORM.Entity.EntitiesRegistry;
+            getEntityManager(): Mandarine.ORM.Entity.EntityManager;
             initializeMetadata(): void;
             changeSessionContainer(newSessionContainer: MandarineSecurity.Sessions.SessionContainer): void;
             getInstance?: () => ApplicationContext.IApplicationContext;

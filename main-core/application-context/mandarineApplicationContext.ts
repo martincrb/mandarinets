@@ -21,8 +21,8 @@ export class ApplicationContext implements Mandarine.ApplicationContext.IApplica
         return Mandarine.Global.getComponentsRegistry();
     }
 
-    public getEntitiesRegistry(): Mandarine.ORM.Entity.EntitiesRegistry { 
-        return Mandarine.Global.getEntitiesRegistry();
+    public getEntityManager(): Mandarine.ORM.Entity.EntityManager { 
+        return Mandarine.Global.getEntityManager();
     }
 
     private initializeDefaultSessionContainer(): void {
