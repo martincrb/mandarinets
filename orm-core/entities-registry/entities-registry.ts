@@ -1,12 +1,16 @@
 import { Mandarine } from "../../mod.ts";
 import { Reflect } from "../../main-core/reflectMetadata.ts";
 import { MandarineConstants } from "../../main-core/mandarineConstants.ts";
+import { ReflectUtils } from "../../main-core/utils/reflectUtils.ts";
 
 export class EntitiesRegistry implements Mandarine.ORM.Entity.EntitiesRegistry {
 
     private entities: Map<string, Mandarine.ORM.Entity.Table> = new Map<string, Mandarine.ORM.Entity.Table>();
     
-    public register(schemaName: string, tableName: string, instance: any) {
+    public register(schemaName: string, instance: any, tableName?: string) {
+
+        if(tableName == (null || undefined)) tableName = ReflectUtils.getClassName(instance);
+
         if(this.entities.get(`${schemaName}.${tableName}`) == (null || undefined)) {
 
             let columns = this.getColumnsFromEntity(instance);
@@ -16,8 +20,9 @@ export class EntitiesRegistry implements Mandarine.ORM.Entity.EntitiesRegistry {
                 schema: schemaName,
                 columns: columns,
                 uniqueConstraints: columns.filter((item) => item.unique == true),
-                primaryKey: columns.find(item => item.options.primaryKey != undefined && item.options.primaryKey == true).name,
-                instance: instance
+                primaryKey: columns.find(item => item.options.primaryKey != undefined && item.options.primaryKey == true),
+                instance: instance,
+                className: ReflectUtils.getClassName(instance)
             });
 
             

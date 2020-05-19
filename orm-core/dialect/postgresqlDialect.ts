@@ -6,7 +6,24 @@ export class PostgreSQLDialect implements Mandarine.ORM.Dialect.Dialect {
         return "public";
     }
 
-    public getColumnTypeSyntax(column: Mandarine.ORM.Entity.Decorators.Column): string {
+    public getTableMetadata(table: Mandarine.ORM.Entity.Table): Mandarine.ORM.Entity.TableMetadata {
+        let tableMetadata: Mandarine.ORM.Entity.TableMetadata = {
+            name: table.tableName,
+            schema: table.schema
+        };
+
+        if(tableMetadata.name == (null || undefined)) tableMetadata.name = table.className;
+        if(tableMetadata.schema == (null || undefined)) tableMetadata.schema = this.getDefaultSchema();
+        return tableMetadata;
+    }
+
+    public getColumnTypeSyntax(column: Mandarine.ORM.Entity.Column): string {
+
+        if(column.incrementStrategy != undefined && column.incrementStrategy == true) {
+            if(column.options.generatedValue.strategy == "SEQUENCE") {
+                return `SERIAL`;
+            }
+        }
 
         switch(column.type) {
             case Types.VARCHAR:
@@ -73,26 +90,36 @@ export class PostgreSQLDialect implements Mandarine.ORM.Dialect.Dialect {
         }
     }
 
-    public createTable(tableMetadata: Mandarine.ORM.Entity.TableMetadata, colums: Array<Mandarine.ORM.Entity.Decorators.Column>, ifNotExist: boolean): string {
-        let syntax = `CREATE TABLE ${(ifNotExist) ? "IF NOT EXIST" : ""} ${(tableMetadata.schema == undefined) ? this.getDefaultSchema() : tableMetadata.schema}."${tableMetadata.name}"`;
+    public createTable(tableMetadata: Mandarine.ORM.Entity.TableMetadata, columns: Array<Mandarine.ORM.Entity.Column>, ifNotExist: boolean): string {
+        let syntax = `CREATE TABLE ${(ifNotExist) ? "IF NOT EXISTS" : ""} ${(tableMetadata.schema == undefined) ? this.getDefaultSchema() : tableMetadata.schema}."${tableMetadata.name}"`;
         
-        let columnSqls: Array<string> = new Array<string>();
+        if(columns != (undefined || null)) {
+            let columnSqls: Array<string> = new Array<string>();
 
-        colums.forEach((column) => {
-            columnSqls.push(`${column.name} ${this.getColumnTypeSyntax(column)} ${(column.nullable == false) ? "NOT NULL" : ""}`);
-        });
-        syntax += ` (
-            ${columnSqls.join(",")}
-            )`;
+            columns.forEach((column) => {
+                columnSqls.push(`${column.name} ${this.getColumnTypeSyntax(column)} ${(column.nullable == false) ? "NOT NULL" : ""}`);
+            });
+            syntax += ` (
+                ${columnSqls.join(",")}
+                )`;
 
-        return syntax;
+            syntax += ";";
+
+            return syntax;
+        } else {
+            return syntax + "();";
+        }
     }
 
-    public addPrimaryKey(tableMetadata: Mandarine.ORM.Entity.TableMetadata, primaryKeyCol: Mandarine.ORM.Entity.Decorators.Column): string {
-        return `ALTER TABLE ${(tableMetadata.schema == undefined) ? this.getDefaultSchema() : tableMetadata.schema}.${tableMetadata.name} ADD PRIMARY KEY(${primaryKeyCol.name})`;
+    public addPrimaryKey(tableMetadata: Mandarine.ORM.Entity.TableMetadata, primaryKeyCol: Mandarine.ORM.Entity.Column): string {
+        return `ALTER TABLE ${(tableMetadata.schema == undefined) ? this.getDefaultSchema() : tableMetadata.schema}.${tableMetadata.name} ADD PRIMARY KEY(${primaryKeyCol.name});`;
     }
-    
-    public addUniqueConstraint(tableMetadata: Mandarine.ORM.Entity.TableMetadata, uniqueCol: Mandarine.ORM.Entity.Decorators.Column): string {
-        return `ALTER TABLE ${(tableMetadata.schema == undefined) ? this.getDefaultSchema() : tableMetadata.schema}.${tableMetadata.name} ADD UNIQUE (${uniqueCol.name})`;
+
+    public addUniqueConstraint(tableMetadata: Mandarine.ORM.Entity.TableMetadata, uniqueCol: Mandarine.ORM.Entity.Column): string {
+        return `ALTER TABLE ${(tableMetadata.schema == undefined) ? this.getDefaultSchema() : tableMetadata.schema}.${tableMetadata.name} ADD UNIQUE (${uniqueCol.name});`;
+    }
+
+    public addColumn(tableMetadata: Mandarine.ORM.Entity.TableMetadata, column: Mandarine.ORM.Entity.Column): string {
+        return `ALTER TABLE ${tableMetadata.schema}.${tableMetadata.name} ADD COLUMN IF NOT EXISTS ${column.name} ${this.getColumnTypeSyntax(column)};`
     }
 }

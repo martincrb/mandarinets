@@ -6,7 +6,7 @@ import { ApplicationContext } from "../../../main-core/application-context/manda
 
 export const Table = (decoratorOptions: Mandarine.ORM.Entity.Decorators.Table): Function => {
     return (target: any) => {
-        ApplicationContext.getInstance().getEntityManager().entityRegistry.register(decoratorOptions.schema, decoratorOptions.name, target);
+        ApplicationContext.getInstance().getEntityManager().entityRegistry.register(decoratorOptions.schema, target, decoratorOptions?.name);
     }
 }
 

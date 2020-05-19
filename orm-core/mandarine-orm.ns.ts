@@ -3,6 +3,7 @@ import { Column } from "https://deno.land/x/postgres/connection.ts";
 import { QueryBuilder } from "./query-builder/queryBuilder.ts";
 import { PostgreSQLDialect } from "./dialect/postgresqlDialect.ts";
 import { EntitiesRegistry } from "./entities-registry/entities-registry.ts";
+import { EntityManagerClass } from "./core/entityManager.ts";
 
 export namespace MandarineORM {
 
@@ -14,17 +15,19 @@ export namespace MandarineORM {
 
         export interface Dialect {
             getDefaultSchema(): string;
+            getTableMetadata(table: Entity.Table): Entity.TableMetadata;
             getColumnTypeSyntax(column: Entity.Decorators.Column): string;
             createTable(tableMetadata: Entity.TableMetadata, colums: Array<Entity.Decorators.Column>, ifNotExist: boolean): string;
             addPrimaryKey(tableMetadata: Entity.TableMetadata, primaryKeyCol: Entity.Decorators.Column): string
             addUniqueConstraint(tableMetadata: Entity.TableMetadata, uniqueCol: Entity.Decorators.Column): string;
+            addColumn(tableMetadata: Entity.TableMetadata, column: Entity.Column): string;
         }
     }
 
     export namespace Entity {
 
         export interface TableMetadata {
-            name: string;
+            name?: string;
             schema: string;
         }
 
@@ -66,38 +69,12 @@ export namespace MandarineORM {
             schema: string;
             columns: Column[];
             uniqueConstraints: Column[];
-            primaryKey: string;
+            primaryKey: Column;
             instance: any;
+            className: string;
         }
 
-        export class EntityManager {
-            private databaseConnector: Connector.Connector;
-            entityRegistry: EntitiesRegistry;
-            public queryBuilder: QueryBuilder<any>;
-
-            constructor() {
-                this.entityRegistry = new EntitiesRegistry();
-            }
-
-            public initialize(dbConnector: Connector.Connector, dialect: Dialect.Dialects) {
-                this.databaseConnector = dbConnector;
-                switch(dialect) {
-                    case Dialect.Dialects.POSTGRESQL:
-                        this.queryBuilder = new QueryBuilder<PostgreSQLDialect>(PostgreSQLDialect);
-                    break;
-                }
-            }
-
-            public initializeAllEntities() {
-                this.entityRegistry.getAllEntities().forEach((table) => {
-                    // TO DO
-                    console.log(this.queryBuilder.query().createTable({
-                        name: table.tableName,
-                        schema: table.schema
-                    }, table.columns, true));
-                });
-            }
-        }
+        export class EntityManager extends EntityManagerClass {}
     }
 
     export namespace Connector {

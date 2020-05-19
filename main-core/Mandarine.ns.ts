@@ -16,10 +16,10 @@ export namespace Mandarine {
    * Custom Properties must extend Mandarine.Properties
    */
     export interface Properties {
-        mandarine: {
-            server: {
+        mandarine?: {
+            server?: {
                 host?: string,
-                port: number,
+                port?: number,
                 responseType?: MandarineMVC.MediaTypes
             },
             database?: {
@@ -103,8 +103,18 @@ export namespace Mandarine {
        export function getMandarineConfiguration(configuration?: Properties): Properties {
             let mandarineGlobal: MandarineGlobalInterface = getMandarineGlobal();
 
+            let mandarineDefaultProperties: Properties = Defaults.MandarineDefaultConfiguration;
+
+            if(configuration != (null || undefined)) {
+                if(configuration.mandarine == undefined) { configuration.mandarine = mandarineDefaultProperties.mandarine; }
+                if(configuration.mandarine.server == undefined) { configuration.mandarine.server = mandarineDefaultProperties.mandarine.server; }
+                if(configuration.mandarine.server.host == undefined) { configuration.mandarine.server.host = mandarineDefaultProperties.mandarine.server.host; }
+                if(configuration.mandarine.server.port == undefined) { configuration.mandarine.server.port = mandarineDefaultProperties.mandarine.server.port; }
+                if(configuration.mandarine.server.responseType == undefined) { configuration.mandarine.server.responseType = mandarineDefaultProperties.mandarine.server.responseType; }
+            }
+            
             if(mandarineGlobal.mandarineProperties == (null || undefined)) {
-                mandarineGlobal.mandarineProperties = (configuration == (null || undefined)) ? Defaults.MandarineDefaultConfiguration : configuration;
+                mandarineGlobal.mandarineProperties = (configuration == (null || undefined)) ? mandarineDefaultProperties : configuration;
             }
     
             return mandarineGlobal.mandarineProperties;
