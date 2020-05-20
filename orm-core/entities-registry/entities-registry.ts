@@ -69,5 +69,9 @@ export class EntitiesRegistry implements Mandarine.ORM.Entity.EntitiesRegistry {
         return Array.from(this.entities.values());
     }
 
+    public findEntityByInstanceType(initializedInstance): Mandarine.ORM.Entity.Table {
+        return this.getAllEntities().find(item => initializedInstance instanceof item.instance);
+    }
+
 
 }

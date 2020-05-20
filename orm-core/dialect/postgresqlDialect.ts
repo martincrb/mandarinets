@@ -1,7 +1,11 @@
 import { Mandarine } from "../../mod.ts";
 import { Types } from "../sql/types.ts";
+import { RepositoryProxy } from "../repository/repository-proxy.ts";
 
 export class PostgreSQLDialect implements Mandarine.ORM.Dialect.Dialect {
+
+    public MQL_SUPPORTED_KEYWORDS: Array<string> = ["and", "or"];
+
     public getDefaultSchema(): string {
         return "public";
     }
@@ -121,5 +125,21 @@ export class PostgreSQLDialect implements Mandarine.ORM.Dialect.Dialect {
 
     public addColumn(tableMetadata: Mandarine.ORM.Entity.TableMetadata, column: Mandarine.ORM.Entity.Column): string {
         return `ALTER TABLE ${tableMetadata.schema}.${tableMetadata.name} ADD COLUMN IF NOT EXISTS ${column.name} ${this.getColumnTypeSyntax(column)};`
+    }
+
+    public mqlSelectStatement(): string {
+        return "SELECT * FROM %table% WHERE";
+    }
+
+    public mqlSelectCountStatement(): string {
+        return "SELECT COUNT(*) FROM %table% WHERE";
+    }
+
+    public mpqlDeleteStatement(): string {
+        return "DELETE FROM %table% WHERE";
+    }
+
+    public mpqlSelectColumnSyntax(colName: string): string {
+        return `${colName} = '%${colName}%'`;
     }
 }

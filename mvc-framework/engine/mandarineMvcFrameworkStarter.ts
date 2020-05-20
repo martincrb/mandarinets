@@ -41,14 +41,17 @@ export class MandarineMvcFrameworkStarter {
         if(configuration.mandarine.database != undefined) {
 
             let dbConnector: Mandarine.ORM.Connector.Connector;
+            let dbInstance: any;
+            let dbConfig = configuration.mandarine.database.connector;
 
             switch(configuration.mandarine.database.dialect) {
                 case Mandarine.ORM.Dialect.Dialects.POSTGRESQL:
-                    dbConnector = new PostgreSQLConnector(configuration.mandarine.database.connector);
+                    dbInstance = PostgreSQLConnector;
+                    dbConnector = new PostgreSQLConnector(dbConfig);
                 break;
             }
 
-            ApplicationContext.getInstance().getEntityManager().initialize(dbConnector, configuration.mandarine.database.dialect);
+            ApplicationContext.getInstance().getEntityManager().initialize(dbConnector, dbInstance, dbConfig, configuration.mandarine.database.dialect);
             ApplicationContext.getInstance().getEntityManager().initializeAllEntities();
         }
     }

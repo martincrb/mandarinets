@@ -2,23 +2,35 @@ import { EntitiesRegistry } from "../entities-registry/entities-registry.ts";
 import { Mandarine } from "../../main-core/Mandarine.ns.ts";
 import { QueryBuilder } from "../query-builder/queryBuilder.ts";
 import { PostgreSQLDialect } from "../dialect/postgresqlDialect.ts";
+import { RepositoryRegistry } from "../repository/repository-registry.ts";
 
 export class EntityManagerClass {
     private databaseConnector: Mandarine.ORM.Connector.Connector;
+    private databaseInstance: any;
+    private connectorOptions: Mandarine.ORM.Connector.ConnectorOptions;
+
     entityRegistry: EntitiesRegistry;
+    repositoryRegistry: RepositoryRegistry;
     public queryBuilder: QueryBuilder<any>;
+    public dialect: Mandarine.ORM.Dialect.Dialects;
 
     constructor() {
         this.entityRegistry = new EntitiesRegistry();
+        this.repositoryRegistry = new RepositoryRegistry();
     }
 
-    public initialize(dbConnector: Mandarine.ORM.Connector.Connector, dialect: Mandarine.ORM.Dialect.Dialects) {
+    public initialize(dbConnector: Mandarine.ORM.Connector.Connector, dbInstance: any, connectorOptions: Mandarine.ORM.Connector.ConnectorOptions, dialect: Mandarine.ORM.Dialect.Dialects) {
         this.databaseConnector = dbConnector;
+        this.databaseInstance = dbInstance;
+        this.connectorOptions = connectorOptions;
+
         switch(dialect) {
             case Mandarine.ORM.Dialect.Dialects.POSTGRESQL:
                 this.queryBuilder = new QueryBuilder<PostgreSQLDialect>(PostgreSQLDialect);
+                this.dialect = Mandarine.ORM.Dialect.Dialects.POSTGRESQL;
             break;
         }
+        this.repositoryRegistry.connectRepositoriesToProxy();
     }
 
     public async initializeAllEntities() {
@@ -83,5 +95,11 @@ export class EntityManagerClass {
                 }
             }
         });
+    }
+
+    public getDatabaseConnector(): Mandarine.ORM.Connector.Connector {
+        let newConnection: Mandarine.ORM.Connector.Connector  = Object.assign( Object.create( Object.getPrototypeOf(this.databaseConnector)), this.databaseInstance);
+        newConnection.initializeEssentials(this.connectorOptions);
+        return newConnection;
     }
 }

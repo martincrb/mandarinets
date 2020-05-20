@@ -4,6 +4,8 @@ import { QueryBuilder } from "./query-builder/queryBuilder.ts";
 import { PostgreSQLDialect } from "./dialect/postgresqlDialect.ts";
 import { EntitiesRegistry } from "./entities-registry/entities-registry.ts";
 import { EntityManagerClass } from "./core/entityManager.ts";
+import { Repository } from "./core/decorators/repository-decorator.ts";
+import { MandarineRepository } from "./repository/mandarineRepository.ts";
 
 export namespace MandarineORM {
 
@@ -21,6 +23,10 @@ export namespace MandarineORM {
             addPrimaryKey(tableMetadata: Entity.TableMetadata, primaryKeyCol: Entity.Decorators.Column): string
             addUniqueConstraint(tableMetadata: Entity.TableMetadata, uniqueCol: Entity.Decorators.Column): string;
             addColumn(tableMetadata: Entity.TableMetadata, column: Entity.Column): string;
+            mqlSelectStatement(): string;
+            mqlSelectCountStatement(): string;
+            mpqlDeleteStatement(): string;
+            mpqlSelectColumnSyntax(colName: string): string;
         }
     }
 
@@ -59,6 +65,7 @@ export namespace MandarineORM {
             register(schemaName: string, tableName: string, instance: any): void;
             getColumnsFromEntity(entityInstance: any): Array<Entity.Decorators.Column>;
             getAllEntities(): Array<Entity.Table>;
+            findEntityByInstanceType(initializedInstance): Entity.Table;
         }
 
         export interface Column extends Entity.Decorators.Column {
@@ -75,6 +82,20 @@ export namespace MandarineORM {
         }
 
         export class EntityManager extends EntityManagerClass {}
+
+        export namespace Repository {
+            export interface RepositoryRegistry {
+                register(instance: any): void;
+                getAllRepositories(): Array<Repository>;
+                connectRepositoriesToProxy(): void;
+            }
+
+            export interface Repository {
+                table: string;
+                schema: string;
+                instance: any;
+            }
+        }
     }
 
     export namespace Connector {
@@ -83,9 +104,10 @@ export namespace MandarineORM {
             options: ConnectorOptions;
             connected: boolean;
             makeConnection(callback?: () => void): void;
-            query(query: string): Promise<any[]>;
-            transaction?(queries: string[]): Promise<any[]>;
+            query(...args): Promise<any[]>;
+            transaction?(...args): Promise<any[]>;
             close(callback?: (error, result) => void): void;
+            initializeEssentials(connectorOptions: Connector.ConnectorOptions): void;
         }
 
         export interface ConnectorOptions {
