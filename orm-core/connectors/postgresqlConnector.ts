@@ -40,11 +40,11 @@ export class PostgreSQLConnector implements Mandarine.ORM.Connector.Connector {
 
     public async query(query: string | QueryConfig): Promise<any[]> {
         try {
-        await this.makeConnection();
-        const results = await this.client.query(query);
-        return await results.rowsOfObjects();
+            await this.makeConnection();
+            const results = await this.client.query(query);
+            return results.rowsOfObjects();
         } catch(error) {
-            console.log(error, query);
+            // IGNORE
         }
     }
 

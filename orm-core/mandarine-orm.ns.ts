@@ -88,6 +88,7 @@ export namespace MandarineORM {
                 register(instance: any): void;
                 getAllRepositories(): Array<Repository>;
                 connectRepositoriesToProxy(): void;
+                getRepositoryByHandlerType(classType: any): Entity.Repository.Repository;
             }
 
             export interface Repository {

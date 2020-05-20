@@ -54,12 +54,12 @@ export class RepositoryRegistry implements Mandarine.ORM.Entity.Repository.Repos
                 repositoryInstance.prototype[methodName] = (...args) => { 
                     return repositoryProxy.mainProxy(methodName, methodParameterNames, "existsBy", args);
                 }
-                repositoryInstance.prototype[methodName](true);
+                //repositoryInstance.prototype[methodName](true);
             } else if(methodName.startsWith('delete')) {
                 repositoryInstance.prototype[methodName] = (...args) => { 
                     return repositoryProxy.mainProxy(methodName, methodParameterNames, "deleteBy", args);
                 }
-                repositoryInstance.prototype[methodName]("chocolate", 100, false);
+                //repositoryInstance.prototype[methodName]("chocolate", 100, false);
             }
         });
 
@@ -76,5 +76,13 @@ export class RepositoryRegistry implements Mandarine.ORM.Entity.Repository.Repos
             });
         });
 
+    }
+
+    public getRepositoryByHandlerType(classType: any): Mandarine.ORM.Entity.Repository.Repository {
+        return this.getAllRepositories().find(repo => {
+            let instance = repo.instance;
+            if(!ReflectUtils.checkClassInitialized(instance)) instance = new instance();
+            return instance instanceof classType;
+        });
     }
 }

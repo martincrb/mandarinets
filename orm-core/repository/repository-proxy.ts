@@ -61,9 +61,11 @@ export class RepositoryProxy<T> {
     public mainProxy(nativeMethodName: string, repositoryMethodParameterNames: Array<string>, proxyType: "findBy" | "existsBy" | "deleteBy", args: Array<any>): any {
         let values: object = this.getQueryKeysValues(repositoryMethodParameterNames.map(item => item.toLowerCase()), args);
         let mqlQuery: string = this.lexicalProcessor(nativeMethodName, repositoryMethodParameterNames, proxyType);
+        
         Object.keys(values).forEach((valueKey, index) => {
-            mqlQuery = mqlQuery.replace(`'%${valueKey}%'`, `$${index}`);
+            mqlQuery = mqlQuery.replace(`'%${valueKey}%'`, `$${index + 1}`);
         });
+
         mqlQuery = mqlQuery.replace("%table%", this.tableReferenceName);
         
         let entityManager = ApplicationContext.getInstance().getEntityManager();
