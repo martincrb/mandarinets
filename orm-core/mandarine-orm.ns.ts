@@ -1,11 +1,6 @@
 import { Types } from "./sql/types.ts";
-import { Column } from "https://deno.land/x/postgres/connection.ts";
-import { QueryBuilder } from "./query-builder/queryBuilder.ts";
-import { PostgreSQLDialect } from "./dialect/postgresqlDialect.ts";
-import { EntitiesRegistry } from "./entities-registry/entities-registry.ts";
 import { EntityManagerClass } from "./core/entityManager.ts";
-import { Repository } from "./core/decorators/repository-decorator.ts";
-import { MandarineRepository } from "./repository/mandarineRepository.ts";
+import { Mandarine } from "../mod.ts";
 
 export namespace MandarineORM {
 
@@ -27,6 +22,9 @@ export namespace MandarineORM {
             mqlSelectCountStatement(): string;
             mpqlDeleteStatement(): string;
             mpqlSelectColumnSyntax(colName: string): string;
+            mpqlInsertStatement(columns: Array<string>, values: object): string;
+            mpqlSelectAllStatement(): string;
+            mpqlDeleteAllStatement(): string;
         }
     }
 
@@ -85,10 +83,9 @@ export namespace MandarineORM {
 
         export namespace Repository {
             export interface RepositoryRegistry {
-                register(instance: any): void;
-                getAllRepositories(): Array<Repository>;
+                getAllRepositories(): Array<Mandarine.MandarineCore.ComponentRegistryContext>;
                 connectRepositoriesToProxy(): void;
-                getRepositoryByHandlerType(classType: any): Entity.Repository.Repository;
+                getRepositoryByHandlerType(classType: any): Mandarine.MandarineCore.ComponentRegistryContext;
             }
 
             export interface Repository {

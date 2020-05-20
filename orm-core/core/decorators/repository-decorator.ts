@@ -1,7 +1,8 @@
 import { ApplicationContext } from "../../../main-core/application-context/mandarineApplicationContext.ts";
+import { ComponentsRegistryUtil } from "../../../main-core/components-registry/componentRegistry.util.ts";
 
 export const Repository = (): Function => {
     return (target: any) => {
-        ApplicationContext.getInstance().getEntityManager().repositoryRegistry.register(target);
+        ComponentsRegistryUtil.registerRepositoryComponent(target);
     };
 }

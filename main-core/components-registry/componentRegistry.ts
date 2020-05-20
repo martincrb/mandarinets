@@ -6,6 +6,7 @@ import { ComponentComponent } from "../components/component-component/componentC
 import { DI } from "../dependency-injection/di.ns.ts";
 import { MiddlewareComponent } from "../components/middleware-component/middlewareComponent.ts";
 import { Mandarine } from "../Mandarine.ns.ts";
+import { ReflectUtils } from "../utils/reflectUtils.ts";
 
 export class ComponentsRegistry implements Mandarine.MandarineCore.IComponentsRegistry {
 
@@ -37,6 +38,9 @@ export class ComponentsRegistry implements Mandarine.MandarineCore.IComponentsRe
                 case Mandarine.MandarineCore.ComponentTypes.MIDDLEWARE:
                     componentInstanceInitialized = new MiddlewareComponent(componentName, configuration.regexRoute, componentHandler);
                 break;
+                case Mandarine.MandarineCore.ComponentTypes.REPOSITORY:
+                    componentInstanceInitialized = componentInstance;
+                break;
                 case Mandarine.MandarineCore.ComponentTypes.MANUAL_COMPONENT:
                     componentInstanceInitialized = componentInstance;
                 break;
@@ -46,7 +50,8 @@ export class ComponentsRegistry implements Mandarine.MandarineCore.IComponentsRe
                 classParentName: componentName,
                 componentName: componentName,
                 componentInstance: componentInstanceInitialized,
-                componentType: componentType
+                componentType: componentType,
+                componentExtradata: configuration
             });
         }
     }
@@ -76,6 +81,10 @@ export class ComponentsRegistry implements Mandarine.MandarineCore.IComponentsRe
         return Array.from(this.components.values());
     }
 
+    public getComponentsByComponentType(componentType: Mandarine.MandarineCore.ComponentTypes): Mandarine.MandarineCore.ComponentRegistryContext[] {
+        return Array.from(this.components.values()).filter(item => item.componentType == componentType);
+    }
+
     public getControllers(): Mandarine.MandarineCore.ComponentRegistryContext[] {
         return Array.from(this.components.values()).filter(item => item.componentType == Mandarine.MandarineCore.ComponentTypes.CONTROLLER);
     }
@@ -87,7 +96,7 @@ export class ComponentsRegistry implements Mandarine.MandarineCore.IComponentsRe
 
     public isComponentHandlerTypeMatch(componentName: string, classType: any): boolean {
         let componentContext: Mandarine.MandarineCore.ComponentRegistryContext = this.get(componentName);
-        if(componentContext.componentType == Mandarine.MandarineCore.ComponentTypes.MANUAL_COMPONENT) return componentContext.componentInstance instanceof classType;
+        if(componentContext.componentType == Mandarine.MandarineCore.ComponentTypes.MANUAL_COMPONENT || componentContext.componentType == Mandarine.MandarineCore.ComponentTypes.REPOSITORY) return componentContext.componentInstance instanceof classType;
         else componentContext.componentInstance.getClassHandler() instanceof classType;
         return false;
     }
@@ -95,12 +104,14 @@ export class ComponentsRegistry implements Mandarine.MandarineCore.IComponentsRe
     public getComponentByHandlerType(classType: any): Mandarine.MandarineCore.ComponentRegistryContext {
         return this.getComponents().find(component => {
             let instance = undefined;
-                if(component.componentType != Mandarine.MandarineCore.ComponentTypes.MANUAL_COMPONENT) {
-                    instance = component.componentInstance.getClassHandler();
-                } else {
-                    instance = component.componentInstance;
-                }
-                return  instance instanceof classType;
+
+            if(component.componentType == Mandarine.MandarineCore.ComponentTypes.MANUAL_COMPONENT || component.componentType == Mandarine.MandarineCore.ComponentTypes.REPOSITORY) {
+                instance = component.componentInstance;
+            } else {
+                instance = component.componentInstance.getClassHandler();
+            }
+
+            return  instance instanceof classType;
         });
     }
 

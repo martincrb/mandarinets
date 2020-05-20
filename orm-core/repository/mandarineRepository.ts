@@ -20,4 +20,8 @@ export abstract class MandarineRepository<T> {
          return this.modeler;
      }
 
+     public save(model: T) {}
+     public findAll() {}
+     public deleteAll() {}
+
 }

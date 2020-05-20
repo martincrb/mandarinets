@@ -26,6 +26,7 @@ export class MandarineMvcFrameworkStarter {
 
         MandarineLoading();
 
+        this.initializeEntities();
         this.resolveComponentsDependencies();
 
         MandarineMvcFrameworkEngineMethods.initializeEngineMethods();
@@ -33,7 +34,6 @@ export class MandarineMvcFrameworkStarter {
         this.initializeControllers();
         this.intializeControllersRoutes();
         this.initializeEssentials();
-        this.initializeEntities();
     }
 
     private initializeEntities() {

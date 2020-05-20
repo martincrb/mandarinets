@@ -194,6 +194,7 @@ export namespace Mandarine {
             SERVICE,
             CONFIGURATION,
             MIDDLEWARE,
+            REPOSITORY,
             MANUAL_COMPONENT
         };
 
@@ -218,6 +219,7 @@ export namespace Mandarine {
             componentName?: string;
             componentInstance: any;
             componentType: ComponentTypes;
+            componentExtradata: any;
         };
 
         /**
@@ -244,6 +246,7 @@ export namespace Mandarine {
             exist(itemName: string): boolean;
             getAllComponentNames(): Array<string>
             getAllComponentNamesByType(componentType: ComponentTypes): Array<string>
+            getComponentsByComponentType(componentType: Mandarine.MandarineCore.ComponentTypes): Mandarine.MandarineCore.ComponentRegistryContext[];
             getComponents(): ComponentRegistryContext[];
             getControllers(): ComponentRegistryContext[];
             getComponentDefinitionNames(componentType?: ComponentTypes): Array<string>;

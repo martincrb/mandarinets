@@ -142,4 +142,26 @@ export class PostgreSQLDialect implements Mandarine.ORM.Dialect.Dialect {
     public mpqlSelectColumnSyntax(colName: string): string {
         return `${colName} = '%${colName}%'`;
     }
+
+    public mpqlInsertStatement(columns: Array<string>, values: object): string {
+        let syntax: string = `INSERT INTO %table% (${columns.join(", ")}) VALUES (%values%)`;
+
+        let valuesForInsertion: Array<string> = new Array<string>();
+        Object.keys(values).forEach((valueKey, index) => {
+            valuesForInsertion.push(`$${index + 1}`);
+        });
+
+        syntax = syntax.replace("%values%", `${valuesForInsertion.join(", ")}`);
+
+        return syntax;
+    }
+
+    public mpqlSelectAllStatement(): string {
+        return `SELECT * FROM %table%`;
+    }
+
+    public mpqlDeleteAllStatement(): string {
+        return `DELETE FROM %table%`;
+    }
+
 }

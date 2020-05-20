@@ -5,6 +5,8 @@ import { InvalidAnnotationError } from "../exceptions/invalidAnnotationError.ts"
 import { MandarineConstants } from "../mandarineConstants.ts";
 import { ApplicationContext } from "../application-context/mandarineApplicationContext.ts";
 import { Mandarine } from "../Mandarine.ns.ts";
+import { MandarineRepository } from "../../orm-core/repository/mandarineRepository.ts";
+import { MandarineRepositoryException } from "../../orm-core/core/exceptions/RepositoryException.ts";
 
 export class ComponentsRegistryUtil {
 
@@ -28,6 +30,26 @@ export class ComponentsRegistryUtil {
             }, componentTarget);
 
             componentsRegistry.register(componentName, componentTarget, componentType, configuration);
+        }
+    }
+
+    public static registerRepositoryComponent(instance: any) {
+        try {
+            let mandarineRepository: object & MandarineRepository<any> = new instance();
+            let entity: Mandarine.ORM.Entity.Table = ApplicationContext.getInstance().getEntityManager().entityRegistry.findEntityByInstanceType(mandarineRepository.getModeler().object);
+            
+            if(entity != (null || undefined)) {
+                this.registerComponent(`repo:${entity.schema}.${entity.tableName}`, instance, Mandarine.MandarineCore.ComponentTypes.REPOSITORY, {
+                    table: entity.tableName,
+                    schema: entity.schema
+                }, null);
+            } else {
+                throw new MandarineRepositoryException(MandarineRepositoryException.INVALID_REPOSITORY, ReflectUtils.getClassName(instance));
+            }
+
+        } catch(error) {
+            console.log(error);
+            throw new MandarineRepositoryException(MandarineRepositoryException.INVALID_REPOSITORY, ReflectUtils.getClassName(instance));
         }
     }
 }

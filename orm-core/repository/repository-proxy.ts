@@ -23,6 +23,44 @@ export class RepositoryProxy<T> {
         return values;
     }
 
+    public save(repositoryMethodParameterNames: Array<string>, args: Array<any>): any {
+        let entityManager = ApplicationContext.getInstance().getEntityManager();
+        let values: object = this.getQueryKeysValues(repositoryMethodParameterNames.map(item => item.toLowerCase()), args);
+        let query = entityManager.queryBuilder.query().mpqlInsertStatement(repositoryMethodParameterNames, args).replace('%table%', this.tableReferenceName);
+
+        switch(entityManager.dialect) {
+            case Mandarine.ORM.Dialect.Dialects.POSTGRESQL:
+                return entityManager.getDatabaseConnector().query({
+                    text: query,
+                    args: args
+                });
+            break;
+        }
+    }
+
+    public findAll(): any {
+        console.log("find all called proxy");
+        let entityManager = ApplicationContext.getInstance().getEntityManager();
+        let query = entityManager.queryBuilder.query().mpqlSelectAllStatement().replace('%table%', this.tableReferenceName);
+
+        switch(entityManager.dialect) {
+            case Mandarine.ORM.Dialect.Dialects.POSTGRESQL:
+                return entityManager.getDatabaseConnector().query(`${query}`);
+            break;
+        }
+    }
+
+    public deleteAll(): any {
+        let entityManager = ApplicationContext.getInstance().getEntityManager();
+        let query = entityManager.queryBuilder.query().mpqlDeleteAllStatement().replace('%table%', this.tableReferenceName);
+
+        switch(entityManager.dialect) {
+            case Mandarine.ORM.Dialect.Dialects.POSTGRESQL:
+                return entityManager.getDatabaseConnector().query(`${query}`);
+            break;
+        }
+    }
+
     private lexicalProcessor(methodName: string, repositoryMethodParameterNames: Array<string>, proxyType: "findBy" | "existsBy" | "deleteBy") {
         repositoryMethodParameterNames = repositoryMethodParameterNames.map(item => item.toLowerCase());
         methodName = methodName.replace(proxyType, "").toLowerCase();
