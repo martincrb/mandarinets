@@ -24,6 +24,7 @@ export class CommonUtils {
         }
         try {
         const data = Deno.readFileSync(filePath);
+        console.log(`File ${filePath} was read`);
         return decoder.decode(data);
         }catch(error) {
             console.log(`Error reading file ${filePath}`);

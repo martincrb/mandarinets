@@ -223,6 +223,7 @@ export namespace Mandarine {
                     }
 
                 } catch (error) {
+                    console.log("getMandarineInitialProps()", error);
                     // DO NOTHING
                 }
             }
