@@ -189,6 +189,7 @@ export namespace Mandarine {
                     const initialProperties: MandarineInitialProperties = getMandarineInitialProps();
                     let mandarinePropertiesFile = Defaults.mandarinePropertiesFile;
                     if(initialProperties && initialProperties.propertiesFilePath) mandarinePropertiesFile = initialProperties.propertiesFilePath;
+                    console.log("Config file: " + mandarinePropertiesFile);
                     const propertiesData = JSON.parse(CommonUtils.readFile(mandarinePropertiesFile));
                     setConfiguration(propertiesData);
                 } catch(error) {
