@@ -193,6 +193,7 @@ export namespace Mandarine {
                     const propertiesData = JSON.parse(CommonUtils.readFile(mandarinePropertiesFile));
                     setConfiguration(propertiesData);
                 } catch(error) {
+                    console.log("getMandarineConfiguration()", error);
                     mandarineGlobal.mandarineProperties = Defaults.MandarineDefaultConfiguration;
                     logger.warn(`properties.json could not be found or parsed. Using default values. `);
                 }
@@ -225,6 +226,7 @@ export namespace Mandarine {
                     }
 
                 } catch (error) {
+                    console.log("getMandarineInitialProps()", error);
                     // DO NOTHING
                 }
             }

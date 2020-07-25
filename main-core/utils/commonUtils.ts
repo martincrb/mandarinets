@@ -22,9 +22,13 @@ export class CommonUtils {
         } catch(error) {
             decoder = new TextDecoder();
         }
-
+        try {
         const data = Deno.readFileSync(filePath);
         return decoder.decode(data);
+        }catch(error) {
+            console.log("readFile() ", error);
+            throw error;
+        }
     }
 
     public static fileDirExists(path: string): boolean  {
