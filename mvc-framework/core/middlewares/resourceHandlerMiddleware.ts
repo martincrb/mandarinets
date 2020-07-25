@@ -7,9 +7,11 @@ import { handleCors } from "./cors/corsMiddleware.ts";
 
 export const ResourceHandlerMiddleware = (): Middleware => {
     return async (context, next) => {
+        console.log("Handling resource middleware ", context);
         let resourceHandlerRegistry: Mandarine.MandarineCore.IResourceHandlerRegistry = ApplicationContext.getInstance().getResourceHandlerRegistry();
 
         let resources = resourceHandlerRegistry.getResourceHandlers();
+        console.log(resources);
         for(let i = 0; i<resources.length; i++) {
             let resourceHandler = resources[i];
 
