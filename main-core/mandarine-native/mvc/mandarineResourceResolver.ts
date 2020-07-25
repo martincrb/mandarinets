@@ -14,6 +14,8 @@ export class MandarineResourceResolver implements Mandarine.MandarineMVC.HTTPRes
 
     public resolve(httpContext: Context, resourcePath: string): Uint8Array {
 
+        console.log(`Trying to resolve resource path: ${resourcePath}`)
+
         let resourceExt = null;
 
         if(resourcePath.includes(".")) {

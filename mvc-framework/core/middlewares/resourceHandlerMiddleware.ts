@@ -23,6 +23,14 @@ export const ResourceHandlerMiddleware = (): Middleware => {
                 let search = context.request.url.host + context.request.url.pathname;
                 let isMatch = regex.test(search);
 
+                console.log(`Resource handler path: ${resourceHandlerPath}`);
+                console.log(`Resource handler location: ${resourceHandlerLocation}`);
+                console.log(`Resource handler index: ${resourceHandlerIndex}`);
+                console.log(`Host: ${context.request.url.host}`);
+                console.log(`Resource handler path source: ${resourceHandlerPath.source}`);
+                console.log(`Search pattern: ${search}`);
+                console.log(`isMatch: ${isMatch}`);
+
                 if(isMatch) {
                     let results = regex.exec(search);
 
@@ -33,6 +41,8 @@ export const ResourceHandlerMiddleware = (): Middleware => {
                         
                         let resource = results[1];
                         let index: boolean = false;
+
+                        console.log(`Resource found: ${resource}`);
 
                         if(resource === "" || resource == (null || undefined)) {
                             if(resourceHandlerIndex != (null || undefined)) {
@@ -45,6 +55,9 @@ export const ResourceHandlerMiddleware = (): Middleware => {
                         }
                         
                         resource = (index) ? resource : `${resourceHandlerLocation}/${resource}`;
+
+                        console.log(`Resource path: ${resource}`);
+
                         context.response.body = resourceHandler.resourceResolver.resolve(context, resource);
                     }
                 }
